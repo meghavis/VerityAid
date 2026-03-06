@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VerityAid — Last-Mile Healthcare Benefits</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --yellow: #f3f522;
+      --black: #000000;
+      --white: #ffffff;
+      --gray-100: #f5f5f5;
+      --gray-200: #e8e8e8;
+      --gray-600: #666666;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Space Grotesk', sans-serif;
+      background: var(--white);
+      color: var(--black);
+      overflow-x: hidden;
+    }
+
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 5%;
+      height: 72px;
+      background: var(--white);
+      border-bottom: 2px solid var(--black);
+    }
+
+    .nav-logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+    .nav-logo img { height: 40px; width: auto; }
+    .nav-logo span {
+      font-family: 'Space Mono', monospace;
+      font-weight: 700;
+      font-size: 1.1rem;
+      letter-spacing: 0.15em;
+      color: var(--black);
+      text-transform: uppercase;
+    }
+
+    .nav-links { display: flex; align-items: center; gap: 36px; list-style: none; }
+    .nav-links a {
+      font-size: 0.85rem; font-weight: 500; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--black); text-decoration: none; transition: opacity 0.2s;
+    }
+    .nav-links a:hover { opacity: 0.5; }
+    .nav-cta {
+      background: var(--yellow); color: var(--black) !important;
+      padding: 10px 22px; border: 2px solid var(--black); font-weight: 700 !important;
+      transition: background 0.2s, transform 0.15s !important;
+    }
+    .nav-cta:hover { background: var(--black) !important; color: var(--yellow) !important; opacity: 1 !important; }
+
+    #hero { min-height: 100vh; display: grid; grid-template-columns: 1fr 1fr; padding-top: 72px; }
+
+    .hero-left {
+      background: var(--yellow);
+      display: flex; flex-direction: column; justify-content: center;
+      padding: 80px 6% 80px 8%; border-right: 2px solid var(--black);
+    }
+
+    .hero-eyebrow {
+      font-family: 'Space Mono', monospace; font-size: 0.75rem; font-weight: 700;
+      letter-spacing: 0.25em; text-transform: uppercase; margin-bottom: 24px; opacity: 0.7;
+    }
+
+    .hero-headline {
+      font-family: 'Space Mono', monospace;
+      font-size: clamp(2.2rem, 3.5vw, 3.6rem);
+      font-weight: 700; line-height: 1.1; letter-spacing: -0.02em; margin-bottom: 28px;
+    }
+
+    .hero-headline span {
+      display: inline-block; background: var(--black); color: var(--yellow); padding: 0 8px;
+    }
+
+    .hero-sub { font-size: 1.1rem; line-height: 1.65; max-width: 460px; margin-bottom: 48px; color: #111; }
+    .hero-actions { display: flex; gap: 16px; flex-wrap: wrap; }
+
+    .btn-primary {
+      display: inline-block; background: var(--black); color: var(--yellow);
+      font-family: 'Space Mono', monospace; font-size: 0.85rem; font-weight: 700;
+      letter-spacing: 0.12em; text-transform: uppercase; padding: 16px 32px;
+      border: 2px solid var(--black); text-decoration: none; transition: background 0.2s, color 0.2s; cursor: pointer;
+    }
+    .btn-primary:hover { background: transparent; color: var(--black); }
+
+    .btn-secondary {
+      display: inline-block; background: transparent; color: var(--black);
+      font-family: 'Space Mono', monospace; font-size: 0.85rem; font-weight: 700;
+      letter-spacing: 0.12em; text-transform: uppercase; padding: 16px 32px;
+      border: 2px solid var(--black); text-decoration: none; transition: background 0.2s, color 0.2s; cursor: pointer;
+    }
+    .btn-secondary:hover { background: var(--black); color: var(--yellow); }
+
+    .hero-right {
+      background: var(--black);
+      display: flex; flex-direction: column; justify-content: center;
+      align-items: center; padding: 80px 6%; gap: 48px;
+    }
+
+    .hero-logo-mark {
+      width: 220px; height: 220px; background: var(--yellow); border-radius: 50%;
+      display: flex; align-items: center; justify-content: center; border: 4px solid var(--yellow);
+    }
+    .hero-logo-mark img { width: 160px; height: 160px; object-fit: contain; }
+
+    .hero-stat-row { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; width: 100%; max-width: 340px; }
+    .hero-stat { background: #111; padding: 24px 20px; border: 1px solid #222; }
+    .hero-stat .num {
+      font-family: 'Space Mono', monospace; font-size: 2rem; font-weight: 700;
+      color: var(--yellow); display: block; line-height: 1; margin-bottom: 6px;
+    }
+    .hero-stat .label { font-size: 0.75rem; color: #888; letter-spacing: 0.05em; text-transform: uppercase; }
+
+    .marquee-bar {
+      background: var(--black); border-top: 2px solid var(--yellow);
+      border-bottom: 2px solid var(--yellow); padding: 14px 0; overflow: hidden; white-space: nowrap;
+    }
+    .marquee-track { display: inline-flex; animation: marquee 22s linear infinite; }
+    .marquee-item {
+      font-family: 'Space Mono', monospace; font-size: 0.8rem; font-weight: 700;
+      letter-spacing: 0.2em; text-transform: uppercase; color: var(--yellow); margin: 0 48px;
+    }
+    @keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+    section { padding: 100px 8%; }
+
+    .section-label {
+      font-family: 'Space Mono', monospace; font-size: 0.7rem; font-weight: 700;
+      letter-spacing: 0.3em; text-transform: uppercase; margin-bottom: 16px; opacity: 0.45;
+    }
+    .section-title {
+      font-family: 'Space Mono', monospace; font-size: clamp(1.8rem, 2.8vw, 2.8rem);
+      font-weight: 700; line-height: 1.15; letter-spacing: -0.01em; margin-bottom: 24px;
+    }
+    .section-title em { font-style: normal; background: var(--yellow); padding: 0 6px; }
+
+    #problem { background: var(--black); color: var(--white); padding: 100px 8%; }
+    #problem .section-label { opacity: 0.4; color: var(--yellow); }
+    #problem .section-title { color: var(--white); }
+    #problem .section-title em { background: var(--yellow); color: var(--black); }
+
+    .problem-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 2px; margin-top: 56px; }
+    .problem-card {
+      background: #111; padding: 40px 32px; border: 1px solid #222;
+      position: relative; overflow: hidden;
+    }
+    .problem-card::before {
+      content: ''; position: absolute; top: 0; left: 0;
+      width: 100%; height: 3px; background: var(--yellow);
+    }
+    .problem-num {
+      font-family: 'Space Mono', monospace; font-size: 3.5rem; font-weight: 700;
+      color: var(--yellow); line-height: 1; margin-bottom: 16px;
+    }
+    .problem-card h3 { font-size: 1rem; font-weight: 600; margin-bottom: 12px; letter-spacing: 0.02em; }
+    .problem-card p { font-size: 0.9rem; line-height: 1.6; color: #999; }
+
+    #how { background: var(--white); }
+    .how-layout { display: grid; grid-template-columns: 1fr 2fr; gap: 80px; align-items: start; margin-top: 20px; }
+    .how-sticky { position: sticky; top: 100px; }
+    .how-sticky p { font-size: 1rem; line-height: 1.7; color: var(--gray-600); margin-bottom: 32px; }
+    .how-steps { display: flex; flex-direction: column; gap: 2px; }
+    .step { display: grid; grid-template-columns: 72px 1fr; gap: 0; border: 2px solid var(--black); overflow: hidden; }
+    .step-num {
+      background: var(--yellow); display: flex; align-items: center; justify-content: center;
+      font-family: 'Space Mono', monospace; font-size: 1.4rem; font-weight: 700;
+      border-right: 2px solid var(--black);
+    }
+    .step-content { padding: 28px 32px; }
+    .step-content h3 { font-size: 1rem; font-weight: 700; letter-spacing: 0.03em; margin-bottom: 8px; text-transform: uppercase; }
+    .step-content p { font-size: 0.9rem; line-height: 1.65; color: var(--gray-600); }
+
+    #impact { background: var(--yellow); border-top: 2px solid var(--black); border-bottom: 2px solid var(--black); }
+    .impact-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 64px; gap: 40px; flex-wrap: wrap; }
+    .impact-header p { max-width: 400px; font-size: 1rem; line-height: 1.7; }
+    .impact-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2px; }
+    .impact-card { background: var(--black); color: var(--white); padding: 40px 32px; }
+    .impact-card .big {
+      font-family: 'Space Mono', monospace; font-size: clamp(2rem, 3vw, 3rem);
+      font-weight: 700; color: var(--yellow); line-height: 1; display: block; margin-bottom: 10px;
+    }
+    .impact-card .desc { font-size: 0.85rem; color: #aaa; line-height: 1.5; }
+
+    #who { background: var(--white); }
+    .who-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 56px; }
+    .who-card { border: 2px solid var(--black); padding: 40px 32px; position: relative; transition: transform 0.2s; }
+    .who-card:hover { transform: translateY(-4px); }
+    .who-card .icon {
+      width: 56px; height: 56px; background: var(--yellow); border: 2px solid var(--black);
+      display: flex; align-items: center; justify-content: center; margin-bottom: 24px; font-size: 1.4rem;
+    }
+    .who-card h3 {
+      font-family: 'Space Mono', monospace; font-size: 1rem; font-weight: 700;
+      letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 12px;
+    }
+    .who-card p { font-size: 0.9rem; line-height: 1.65; color: var(--gray-600); }
+
+    #mission { background: var(--black); color: var(--white); display: grid; grid-template-columns: 1fr 1fr; gap: 0; padding: 0; }
+    .mission-left { padding: 100px 6% 100px 8%; border-right: 2px solid #222; display: flex; flex-direction: column; justify-content: center; }
+    .mission-left .section-label { color: var(--yellow); opacity: 0.6; }
+    .mission-left .section-title { color: var(--white); }
+    .mission-left .section-title em { background: var(--yellow); color: var(--black); }
+    .mission-left p { font-size: 1rem; line-height: 1.8; color: #aaa; margin-bottom: 20px; max-width: 480px; }
+    .mission-right { background: var(--yellow); padding: 100px 6%; display: flex; flex-direction: column; justify-content: center; }
+    .mission-right .quote {
+      font-family: 'Space Mono', monospace;
+      font-size: clamp(1.3rem, 2vw, 1.8rem);
+      font-weight: 700; line-height: 1.4; letter-spacing: -0.01em; margin-bottom: 32px;
+      color: var(--black);
+    }
+    .mission-right .attribution { font-size: 0.85rem; letter-spacing: 0.12em; text-transform: uppercase; font-weight: 600; opacity: 0.6; color: var(--black); }
+
+    .values-list { list-style: none; display: flex; flex-direction: column; gap: 12px; margin-top: 32px; }
+    .values-list li { display: flex; align-items: center; gap: 12px; font-size: 0.9rem; color: #ccc; }
+    .values-list li::before { content: ''; display: block; width: 8px; height: 8px; background: var(--yellow); flex-shrink: 0; }
+
+    #cta { background: var(--yellow); border-top: 2px solid var(--black); text-align: center; padding: 100px 8%; }
+    #cta .section-label { justify-content: center; display: flex; }
+    #cta h2 {
+      font-family: 'Space Mono', monospace; font-size: clamp(2rem, 4vw, 4rem);
+      font-weight: 700; line-height: 1.1; letter-spacing: -0.02em;
+      max-width: 760px; margin: 0 auto 40px;
+    }
+    #cta h2 span { display: inline-block; background: var(--black); color: var(--yellow); padding: 0 10px; }
+    .cta-actions { display: flex; justify-content: center; gap: 16px; flex-wrap: wrap; }
+
+    footer { background: var(--black); color: var(--white); padding: 64px 8% 40px; border-top: 2px solid var(--yellow); }
+    .footer-top { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 48px; margin-bottom: 64px; }
+    .footer-brand img { height: 48px; filter: invert(1) sepia(1) saturate(5) hue-rotate(10deg); margin-bottom: 16px; display: block; }
+    .footer-brand p { font-size: 0.85rem; color: #777; line-height: 1.65; max-width: 280px; margin-bottom: 24px; }
+    .footer-brand .social-row { display: flex; gap: 12px; }
+    .social-btn {
+      width: 40px; height: 40px; border: 1px solid #333; display: flex;
+      align-items: center; justify-content: center; font-size: 0.9rem;
+      color: #777; text-decoration: none; transition: border-color 0.2s, color 0.2s;
+    }
+    .social-btn:hover { border-color: var(--yellow); color: var(--yellow); }
+    .footer-col h4 {
+      font-family: 'Space Mono', monospace; font-size: 0.7rem; font-weight: 700;
+      letter-spacing: 0.25em; text-transform: uppercase; color: var(--yellow); margin-bottom: 20px;
+    }
+    .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+    .footer-col a { font-size: 0.85rem; color: #777; text-decoration: none; transition: color 0.2s; }
+    .footer-col a:hover { color: var(--white); }
+    .footer-bottom {
+      padding-top: 32px; border-top: 1px solid #1a1a1a;
+      display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap;
+    }
+    .footer-bottom p { font-size: 0.8rem; color: #444; letter-spacing: 0.05em; }
+    .footer-bottom span { color: var(--yellow); }
+
+    @media (max-width: 900px) {
+      #hero { grid-template-columns: 1fr; }
+      .hero-right { min-height: 400px; padding: 60px 6%; flex-direction: row; flex-wrap: wrap; }
+      .hero-logo-mark { width: 140px; height: 140px; }
+      .hero-logo-mark img { width: 100px; height: 100px; }
+      .hero-stat-row { max-width: 100%; }
+      .problem-grid { grid-template-columns: 1fr; }
+      .how-layout { grid-template-columns: 1fr; }
+      .how-sticky { position: static; }
+      .impact-grid { grid-template-columns: 1fr 1fr; }
+      .who-grid { grid-template-columns: 1fr; }
+      #mission { grid-template-columns: 1fr; }
+      .mission-left { padding: 60px 8%; }
+      .mission-right { padding: 60px 8%; }
+      .footer-top { grid-template-columns: 1fr 1fr; }
+      .nav-links { display: none; }
+    }
+    @media (max-width: 600px) {
+      section { padding: 72px 6%; }
+      .impact-grid { grid-template-columns: 1fr; }
+      .footer-top { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <a href="#" class="nav-logo">
+      <img src="assets/logo.png" alt="VerityAid Logo" />
+      <span>VerityAid</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="#how">How It Works</a></li>
+      <li><a href="#impact">The Pilot</a></li>
+      <li><a href="#who">Who We Serve</a></li>
+      <li><a href="#mission">Mission</a></li>
+      <li><a href="#cta" class="nav-cta">Get Started</a></li>
+    </ul>
+  </nav>
+
+  <!-- HERO -->
+  <section id="hero">
+    <div class="hero-left">
+      <p class="hero-eyebrow">Healthcare Benefits Navigation</p>
+      <h1 class="hero-headline">
+        From<br />
+        <span>"Denied"</span><br />
+        to Done.
+      </h1>
+      <p class="hero-sub">
+        VerityAid moves last-mile healthcare benefits through the gaps — connecting underserved communities to the coverage they deserve.
+      </p>
+      <div class="hero-actions">
+        <a href="#cta" class="btn-primary">Join the Pilot</a>
+        <a href="#how" class="btn-secondary">How It Works</a>
+      </div>
+    </div>
+    <div class="hero-right">
+      <div class="hero-logo-mark">
+        <img src="assets/logo.png" alt="VerityAid" />
+      </div>
+      <div class="hero-stat-row">
+        <div class="hero-stat">
+          <span class="num">49%</span>
+          <span class="label">PM-JAY claims denied or stuck at discharge</span>
+        </div>
+        <div class="hero-stat">
+          <span class="num">500M+</span>
+          <span class="label">People covered with no clear way to appeal</span>
+        </div>
+        <div class="hero-stat">
+          <span class="num">&lt;3%</span>
+          <span class="label">Of denials ever reach a formal grievance</span>
+        </div>
+        <div class="hero-stat">
+          <span class="num">₹0</span>
+          <span class="label">Cost to the family — ever</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MARQUEE -->
+  <div class="marquee-bar">
+    <div class="marquee-track">
+      <span class="marquee-item">Benefits Navigation</span>
+      <span class="marquee-item">Claims Advocacy</span>
+      <span class="marquee-item">PM-JAY Grievance</span>
+      <span class="marquee-item">Denial Appeals</span>
+      <span class="marquee-item">Agent-First Tools</span>
+      <span class="marquee-item">Community Health Workers</span>
+      <span class="marquee-item">Last-Mile Healthcare</span>
+      <span class="marquee-item">Ayushman Bharat</span>
+      <span class="marquee-item">Benefits Navigation</span>
+      <span class="marquee-item">Claims Advocacy</span>
+      <span class="marquee-item">PM-JAY Grievance</span>
+      <span class="marquee-item">Denial Appeals</span>
+      <span class="marquee-item">Agent-First Tools</span>
+      <span class="marquee-item">Community Health Workers</span>
+      <span class="marquee-item">Last-Mile Healthcare</span>
+      <span class="marquee-item">Ayushman Bharat</span>
+    </div>
+  </div>
+
+  <!-- PROBLEM -->
+  <section id="problem">
+    <p class="section-label">The Problem</p>
+    <h2 class="section-title">
+      Getting denied is easy.<br />
+      Getting help is the <em>hard part.</em>
+    </h2>
+    <div class="problem-grid">
+      <div class="problem-card">
+        <div class="problem-num">01</div>
+        <h3>Denials Have No Next Step</h3>
+        <p>Most families don't understand why their claim was denied — or what they're supposed to do about it. The letter arrives and then nothing. No guidance, no follow-up, no path forward.</p>
+      </div>
+      <div class="problem-card">
+        <div class="problem-num">02</div>
+        <h3>The Paperwork Never Ends</h3>
+        <p>Getting a claim resolved means collecting documents, visiting offices, and resubmitting — sometimes more than once. Most families give up before it's done. The system rewards persistence and punishes exhaustion.</p>
+      </div>
+      <div class="problem-card">
+        <div class="problem-num">03</div>
+        <h3>No One Owns the Follow-Up</h3>
+        <p>Community health workers want to help — but they have no standard tool to track a case or file a grievance. Every agent figures it out on their own, every time. Outcomes depend on who you know, not what you do.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section id="how">
+    <div class="how-layout">
+      <div class="how-sticky">
+        <p class="section-label">How It Works</p>
+        <h2 class="section-title">
+          A clear path<br />
+          from <em>denied</em><br />
+          to covered.
+        </h2>
+        <p>Our process is built around the patient — not the paperwork. We handle the complexity so you can focus on your health.</p>
+        <a href="#cta" class="btn-primary">Start Today</a>
+      </div>
+      <div class="how-steps">
+        <div class="step">
+          <div class="step-num">01</div>
+          <div class="step-content">
+            <h3>Denial Intake</h3>
+            <p>The agent fills out a short form — what happened, where, and what documents the family already has. No training needed. Takes a few minutes.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">02</div>
+          <div class="step-content">
+            <h3>Document Checklist</h3>
+            <p>VerityAid generates a tailored list of exactly what's needed to resolve this specific denial — so agents stop guessing and families stop making wasted trips.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">03</div>
+          <div class="step-content">
+            <h3>Follow-Up Timeline</h3>
+            <p>A clear, step-by-step plan tells the agent what to do and by when — so cases don't fall through the cracks when life gets busy.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">04</div>
+          <div class="step-content">
+            <h3>Grievance Packet</h3>
+            <p>When it's time to escalate, VerityAid generates a ready-to-submit grievance letter and proof-of-process log — everything the family needs, in one place.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">05</div>
+          <div class="step-content">
+            <h3>Shared With the Family</h3>
+            <p>The beneficiary gets a copy. The agent's supervisor gets a copy. Everyone knows what was done, when, and what comes next.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PILOT -->
+  <section id="impact">
+    <div class="impact-header">
+      <div>
+        <p class="section-label">The Pilot</p>
+        <h2 class="section-title">
+          Real outcomes for<br />
+          real <em>people.</em>
+        </h2>
+      </div>
+      <p>We're launching in Karnataka with a focused cohort of community agents. Every case is tracked — so we know exactly what's working and what to improve.</p>
+    </div>
+    <div class="impact-grid">
+      <div class="impact-card">
+        <span class="big">20</span>
+        <span class="desc">Community agents in the first pilot cohort</span>
+      </div>
+      <div class="impact-card">
+        <span class="big">~250</span>
+        <span class="desc">PM-JAY denial cases over 6–8 weeks in Karnataka</span>
+      </div>
+      <div class="impact-card">
+        <span class="big">3 KPIs</span>
+        <span class="desc">Cases resolved, time-to-resolution, repeat visits eliminated</span>
+      </div>
+      <div class="impact-card">
+        <span class="big">B2B2C</span>
+        <span class="desc">NGOs and CSR health programs pay per agent seat — always free for families</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- WHO WE SERVE -->
+  <section id="who">
+    <p class="section-label">Who We Serve</p>
+    <h2 class="section-title">
+      Built for those the system<br />
+      leaves <em>behind.</em>
+    </h2>
+    <div class="who-grid">
+      <div class="who-card">
+        <div class="icon">&#x1F91D;</div>
+        <h3>Community Health Workers</h3>
+        <p>ASHAs and NGO caseworkers who are already trusted by families — and just need a simple tool to take a denial case from start to finish.</p>
+      </div>
+      <div class="who-card">
+        <div class="icon">&#x1F3D8;</div>
+        <h3>PM-JAY Families</h3>
+        <p>Households who were told "no" and don't know what to do next. They qualify. They've already been through enough. They just need someone in their corner.</p>
+      </div>
+      <div class="who-card">
+        <div class="icon">&#x1F4BC;</div>
+        <h3>NGO Health Programs</h3>
+        <p>Organizations running health access programs who want their field staff to close more cases, cut wasted trips, and show funders real outcomes — not just activity.</p>
+      </div>
+      <div class="who-card">
+        <div class="icon">&#x1F4B0;</div>
+        <h3>CSR Health Initiatives</h3>
+        <p>Corporate health programs that need measurable impact — resolved claims, not just outreach numbers — to justify continued investment.</p>
+      </div>
+      <div class="who-card">
+        <div class="icon">&#x1F9D3;</div>
+        <h3>Elderly &amp; Rural Patients</h3>
+        <p>People managing ongoing health needs in places where there's no hospital social worker, no legal aid, and no one explaining what to do after a denial.</p>
+      </div>
+      <div class="who-card">
+        <div class="icon">&#x1F4CA;</div>
+        <h3>Impact Investors</h3>
+        <p>Funders who want to back infrastructure at the last mile of India's largest public health scheme — and see case-level data showing it actually works.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- MISSION -->
+  <section id="mission">
+    <div class="mission-left">
+      <p class="section-label">Our Mission</p>
+      <h2 class="section-title">
+        Healthcare is a<br />
+        right — not a<br />
+        <em>privilege.</em>
+      </h2>
+      <p>VerityAid was founded on a simple belief: the gap between eligibility and access shouldn't exist. Millions of families in India are covered by PM-JAY — but when a claim is denied, most never see that money. Not because they don't qualify, but because the follow-up is too complex to navigate alone.</p>
+      <p>We exist to close that gap. Permanently.</p>
+      <ul class="values-list">
+        <li>Radical transparency in every interaction</li>
+        <li>No patient left behind regardless of ability to pay</li>
+        <li>Community-first, technology-enabled advocacy</li>
+        <li>Accountability to outcomes — not activity</li>
+      </ul>
+    </div>
+    <div class="mission-right">
+      <p class="quote">"The denial isn't the end. It's just where the real work begins."</p>
+      <p class="attribution">— Megha Viswanath, Founder, VerityAid</p>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section id="cta">
+    <p class="section-label">Get Started</p>
+    <h2>
+      Your benefits are<br />
+      waiting. Let's <span>claim them.</span>
+    </h2>
+    <div class="cta-actions">
+      <a href="#" class="btn-primary">Apply for Advocacy</a>
+      <a href="#" class="btn-secondary">Partner With Us</a>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-top">
+      <div class="footer-brand">
+        <img src="assets/logo.png" alt="VerityAid" />
+        <p>Moving last-mile healthcare benefits through the gaps — connecting underserved communities to the coverage they deserve.</p>
+        <div class="social-row">
+          <a href="#" class="social-btn" aria-label="Twitter">&#x58;</a>
+          <a href="#" class="social-btn" aria-label="LinkedIn">in</a>
+          <a href="#" class="social-btn" aria-label="Instagram">&#x25A2;</a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4>Product</h4>
+        <ul>
+          <li><a href="#">Denial Intake</a></li>
+          <li><a href="#">Document Checklist</a></li>
+          <li><a href="#">Follow-Up Timeline</a></li>
+          <li><a href="#">Grievance Packet</a></li>
+          <li><a href="#">Case Tracking</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Company</h4>
+        <ul>
+          <li><a href="#">About Us</a></li>
+          <li><a href="#">Our Team</a></li>
+          <li><a href="#">Pilot Program</a></li>
+          <li><a href="#">Press</a></li>
+          <li><a href="#">Careers</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Contact</h4>
+        <ul>
+          <li><a href="#">Talk to the Founder</a></li>
+          <li><a href="#">Partner With Us</a></li>
+          <li><a href="#">For NGOs &amp; CSR</a></li>
+          <li><a href="#">Investor Inquiries</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2026 VerityAid. All rights reserved.</p>
+      <p>Built with purpose. <span>&#9632;</span> Designed for impact.</p>
+    </div>
+  </footer>
+
+</body>
+</html>

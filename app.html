@@ -1,0 +1,1368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VerityAid — Case Tool</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --yellow: #f3f522;
+      --black: #000000;
+      --white: #ffffff;
+      --gray: #f5f5f5;
+      --gray-mid: #e0e0e0;
+      --gray-text: #666;
+      --green: #22c55e;
+      --red: #ef4444;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Space Grotesk', sans-serif;
+      background: var(--gray);
+      color: var(--black);
+      min-height: 100vh;
+    }
+
+    /* ── HEADER ── */
+    header {
+      background: var(--black);
+      border-bottom: 3px solid var(--yellow);
+      padding: 0 5%;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+
+    .header-logo img {
+      height: 32px;
+      filter: invert(1) sepia(1) saturate(5) hue-rotate(10deg);
+    }
+
+    .header-logo span {
+      font-family: 'Space Mono', monospace;
+      font-weight: 700;
+      font-size: 1rem;
+      letter-spacing: 0.15em;
+      color: var(--yellow);
+      text-transform: uppercase;
+    }
+
+    .header-badge {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--yellow);
+      border: 1px solid var(--yellow);
+      padding: 4px 10px;
+      opacity: 0.7;
+    }
+
+    /* ── PROGRESS BAR ── */
+    .progress-wrap {
+      background: var(--white);
+      border-bottom: 2px solid var(--black);
+      padding: 0 5%;
+    }
+
+    .progress-steps {
+      display: flex;
+      overflow-x: auto;
+    }
+
+    .progress-step {
+      flex: 1;
+      min-width: 120px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 16px 0;
+      border-bottom: 3px solid transparent;
+      cursor: default;
+      transition: border-color 0.2s;
+    }
+
+    .progress-step.active { border-bottom-color: var(--black); }
+    .progress-step.done { border-bottom-color: var(--green); }
+
+    .step-dot {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--gray-mid);
+      border: 2px solid var(--gray-mid);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.7rem;
+      font-weight: 700;
+      flex-shrink: 0;
+      transition: all 0.2s;
+    }
+
+    .progress-step.active .step-dot {
+      background: var(--yellow);
+      border-color: var(--black);
+      color: var(--black);
+    }
+
+    .progress-step.done .step-dot {
+      background: var(--green);
+      border-color: var(--green);
+      color: var(--white);
+    }
+
+    .step-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: #aaa;
+      white-space: nowrap;
+    }
+
+    .progress-step.active .step-label { color: var(--black); }
+    .progress-step.done .step-label { color: var(--green); }
+
+    /* ── MAIN ── */
+    main {
+      max-width: 760px;
+      margin: 40px auto;
+      padding: 0 5% 80px;
+    }
+
+    .screen { display: none; }
+    .screen.active { display: block; }
+
+    /* ── CARD ── */
+    .card {
+      background: var(--white);
+      border: 2px solid var(--black);
+      margin-bottom: 16px;
+    }
+
+    .card-header {
+      background: var(--black);
+      padding: 18px 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .card-header .num {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--yellow);
+      background: rgba(243,245,34,0.15);
+      border: 1px solid var(--yellow);
+      padding: 2px 8px;
+      letter-spacing: 0.1em;
+    }
+
+    .card-header h2 {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--white);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .card-header p {
+      font-size: 0.8rem;
+      color: #777;
+      margin-top: 2px;
+    }
+
+    .card-body { padding: 28px 24px; }
+
+    /* ── FORM ── */
+    .form-group { margin-bottom: 24px; }
+
+    .form-group label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+      color: var(--black);
+    }
+
+    .form-group label .req { color: var(--red); margin-left: 2px; }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: 12px 14px;
+      border: 2px solid var(--black);
+      background: var(--white);
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.95rem;
+      color: var(--black);
+      outline: none;
+      transition: border-color 0.15s;
+      appearance: none;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      border-color: var(--yellow);
+      background: #fffef0;
+    }
+
+    .form-group textarea { resize: vertical; min-height: 80px; }
+
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+    .checkbox-group {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .checkbox-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+    }
+
+    .checkbox-item input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      border: 2px solid var(--black);
+      appearance: none;
+      cursor: pointer;
+      flex-shrink: 0;
+      background: var(--white);
+      transition: background 0.15s;
+      padding: 0;
+    }
+
+    .checkbox-item input[type="checkbox"]:checked {
+      background: var(--yellow);
+      border-color: var(--black);
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 16 16' fill='black' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M13.5 3.5L6 11 2.5 7.5' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: center;
+      background-size: 12px;
+    }
+
+    .checkbox-item span {
+      font-size: 0.9rem;
+      line-height: 1.4;
+    }
+
+    /* ── HINT ── */
+    .hint {
+      font-size: 0.78rem;
+      color: var(--gray-text);
+      margin-top: 6px;
+      line-height: 1.4;
+    }
+
+    /* ── ACTIONS ── */
+    .actions {
+      display: flex;
+      gap: 12px;
+      justify-content: flex-end;
+      margin-top: 32px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 14px 28px;
+      border: 2px solid var(--black);
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+    }
+
+    .btn-primary {
+      background: var(--black);
+      color: var(--yellow);
+    }
+
+    .btn-primary:hover { background: #222; }
+
+    .btn-secondary {
+      background: transparent;
+      color: var(--black);
+    }
+
+    .btn-secondary:hover { background: var(--gray); }
+
+    .btn-yellow {
+      background: var(--yellow);
+      color: var(--black);
+      border-color: var(--black);
+    }
+
+    .btn-yellow:hover { background: #e8ea10; }
+
+    /* ── GENERATED CONTENT ── */
+    .generated-intro {
+      background: var(--yellow);
+      border: 2px solid var(--black);
+      padding: 18px 24px;
+      margin-bottom: 20px;
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+    }
+
+    .generated-intro .icon { font-size: 1.4rem; flex-shrink: 0; }
+
+    .generated-intro p {
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+
+    .generated-intro strong {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    /* ── CHECKLIST ── */
+    .checklist { display: flex; flex-direction: column; gap: 2px; }
+
+    .checklist-item {
+      display: grid;
+      grid-template-columns: 48px 1fr auto;
+      border: 1px solid var(--gray-mid);
+      align-items: center;
+      background: var(--white);
+      transition: background 0.15s;
+    }
+
+    .checklist-item:hover { background: #fafafa; }
+
+    .checklist-item .ci-num {
+      background: var(--black);
+      color: var(--yellow);
+      font-family: 'Space Mono', monospace;
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-align: center;
+      padding: 14px 0;
+      align-self: stretch;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .checklist-item .ci-text {
+      padding: 14px 16px;
+    }
+
+    .checklist-item .ci-text strong {
+      display: block;
+      font-size: 0.88rem;
+      font-weight: 600;
+      margin-bottom: 3px;
+    }
+
+    .checklist-item .ci-text span {
+      font-size: 0.78rem;
+      color: var(--gray-text);
+      line-height: 1.4;
+    }
+
+    .checklist-item .ci-status {
+      padding: 14px 16px;
+    }
+
+    .badge {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.6rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border: 1px solid;
+      white-space: nowrap;
+    }
+
+    .badge-have { border-color: var(--green); color: var(--green); background: #f0fdf4; }
+    .badge-need { border-color: var(--red); color: var(--red); background: #fef2f2; }
+    .badge-optional { border-color: #999; color: #999; background: #f9f9f9; }
+
+    /* ── TIMELINE ── */
+    .timeline { display: flex; flex-direction: column; gap: 0; }
+
+    .timeline-item {
+      display: grid;
+      grid-template-columns: 100px 1fr;
+      gap: 0;
+      border: 1px solid var(--gray-mid);
+      border-bottom: none;
+      position: relative;
+    }
+
+    .timeline-item:last-child { border-bottom: 1px solid var(--gray-mid); }
+
+    .timeline-date {
+      background: var(--black);
+      color: var(--yellow);
+      padding: 18px 14px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      border-right: 2px solid var(--black);
+    }
+
+    .timeline-date .day {
+      font-family: 'Space Mono', monospace;
+      font-size: 1.4rem;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .timeline-date .month {
+      font-size: 0.65rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      opacity: 0.7;
+      margin-top: 2px;
+    }
+
+    .timeline-content {
+      padding: 16px 20px;
+      background: var(--white);
+    }
+
+    .timeline-content h4 {
+      font-size: 0.9rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .timeline-content p {
+      font-size: 0.82rem;
+      color: var(--gray-text);
+      line-height: 1.5;
+    }
+
+    .timeline-content .who {
+      display: inline-block;
+      margin-top: 8px;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 2px 8px;
+      background: var(--yellow);
+      border: 1px solid var(--black);
+      color: var(--black);
+    }
+
+    /* ── GRIEVANCE PACKET ── */
+    #grievance-preview {
+      background: var(--white);
+      border: 2px solid var(--black);
+      padding: 40px;
+      font-size: 0.88rem;
+      line-height: 1.8;
+    }
+
+    #grievance-preview .gp-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 32px;
+      padding-bottom: 20px;
+      border-bottom: 2px solid var(--black);
+    }
+
+    #grievance-preview .gp-logo {
+      font-family: 'Space Mono', monospace;
+      font-weight: 700;
+      font-size: 1rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+    }
+
+    #grievance-preview .gp-meta {
+      text-align: right;
+      font-size: 0.78rem;
+      color: var(--gray-text);
+    }
+
+    #grievance-preview h3 {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.8rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin: 24px 0 8px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--gray-mid);
+    }
+
+    #grievance-preview p { margin-bottom: 12px; }
+
+    #grievance-preview .doc-list {
+      list-style: none;
+      margin: 8px 0 12px;
+    }
+
+    #grievance-preview .doc-list li {
+      padding: 6px 0;
+      border-bottom: 1px dotted var(--gray-mid);
+      font-size: 0.85rem;
+    }
+
+    #grievance-preview .doc-list li::before {
+      content: '→ ';
+      font-family: 'Space Mono', monospace;
+      color: var(--black);
+    }
+
+    #grievance-preview .gp-footer {
+      margin-top: 40px;
+      padding-top: 20px;
+      border-top: 2px solid var(--black);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 32px;
+    }
+
+    #grievance-preview .sig-line {
+      border-top: 1px solid var(--black);
+      margin-top: 40px;
+      padding-top: 6px;
+      font-size: 0.75rem;
+      color: var(--gray-text);
+    }
+
+    /* ── SUMMARY ── */
+    .summary-hero {
+      background: var(--yellow);
+      border: 2px solid var(--black);
+      padding: 32px 28px;
+      margin-bottom: 16px;
+      text-align: center;
+    }
+
+    .summary-hero .check {
+      font-size: 2.5rem;
+      display: block;
+      margin-bottom: 12px;
+    }
+
+    .summary-hero h2 {
+      font-family: 'Space Mono', monospace;
+      font-size: 1.2rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      margin-bottom: 8px;
+    }
+
+    .summary-hero p {
+      font-size: 0.9rem;
+      color: #333;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2px;
+      margin-bottom: 16px;
+    }
+
+    .summary-cell {
+      background: var(--white);
+      border: 1px solid var(--gray-mid);
+      padding: 20px;
+    }
+
+    .summary-cell .sc-label {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--gray-text);
+      margin-bottom: 6px;
+    }
+
+    .summary-cell .sc-value {
+      font-size: 0.92rem;
+      font-weight: 600;
+      line-height: 1.4;
+    }
+
+    .case-id-box {
+      background: var(--black);
+      color: var(--yellow);
+      padding: 20px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .case-id-box .cid-label {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      opacity: 0.6;
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .case-id-box .cid-value {
+      font-family: 'Space Mono', monospace;
+      font-size: 1.2rem;
+      font-weight: 700;
+    }
+
+    /* ── PRINT ── */
+    @media print {
+      header, .progress-wrap, .actions, .generated-intro,
+      #screen-1, #screen-2, #screen-3, #screen-5,
+      .card-header { display: none !important; }
+      main { max-width: 100%; margin: 0; padding: 0; }
+      #grievance-preview { border: none; padding: 0; }
+      body { background: white; }
+    }
+
+    /* ── VALIDATION ── */
+    .field-error {
+      font-size: 0.75rem;
+      color: var(--red);
+      margin-top: 4px;
+      display: none;
+    }
+
+    input.invalid, select.invalid { border-color: var(--red) !important; }
+
+    /* ── MOBILE ── */
+    @media (max-width: 600px) {
+      .form-grid { grid-template-columns: 1fr; }
+      .summary-grid { grid-template-columns: 1fr; }
+      .checklist-item { grid-template-columns: 40px 1fr; }
+      .checklist-item .ci-status { display: none; }
+      #grievance-preview { padding: 20px; }
+      #grievance-preview .gp-footer { grid-template-columns: 1fr; }
+      .timeline-item { grid-template-columns: 80px 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header>
+    <a href="index.html" class="header-logo">
+      <img src="assets/logo.png" alt="VerityAid" />
+      <span>VerityAid</span>
+    </a>
+    <span class="header-badge">Agent Tool — Beta</span>
+  </header>
+
+  <!-- PROGRESS -->
+  <div class="progress-wrap">
+    <div class="progress-steps" id="progress-steps">
+      <div class="progress-step active" data-step="1">
+        <div class="step-dot">01</div>
+        <span class="step-label">Denial Intake</span>
+      </div>
+      <div class="progress-step" data-step="2">
+        <div class="step-dot">02</div>
+        <span class="step-label">Document Checklist</span>
+      </div>
+      <div class="progress-step" data-step="3">
+        <div class="step-dot">03</div>
+        <span class="step-label">Follow-Up Timeline</span>
+      </div>
+      <div class="progress-step" data-step="4">
+        <div class="step-dot">04</div>
+        <span class="step-label">Grievance Packet</span>
+      </div>
+      <div class="progress-step" data-step="5">
+        <div class="step-dot">05</div>
+        <span class="step-label">Case Summary</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <main>
+
+    <!-- ══ SCREEN 1: DENIAL INTAKE ══ -->
+    <div id="screen-1" class="screen active">
+      <div class="card">
+        <div class="card-header">
+          <span class="num">Step 01</span>
+          <div>
+            <h2>Denial Intake</h2>
+            <p>Fill in the case details. Takes 2–3 minutes.</p>
+          </div>
+        </div>
+        <div class="card-body">
+
+          <div class="form-group">
+            <label>Agent / CHW Name <span class="req">*</span></label>
+            <input type="text" id="agent-name" placeholder="Your name" />
+            <span class="field-error" id="err-agent">Required</span>
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Patient Full Name <span class="req">*</span></label>
+              <input type="text" id="patient-name" placeholder="As on PM-JAY card" />
+              <span class="field-error" id="err-patient">Required</span>
+            </div>
+            <div class="form-group">
+              <label>PM-JAY Card / Beneficiary ID</label>
+              <input type="text" id="pmjay-id" placeholder="e.g. KA-2024-XXXXXXXX" />
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Hospital Name <span class="req">*</span></label>
+              <input type="text" id="hospital-name" placeholder="Where treatment was sought" />
+              <span class="field-error" id="err-hospital">Required</span>
+            </div>
+            <div class="form-group">
+              <label>District / Taluk <span class="req">*</span></label>
+              <input type="text" id="district" placeholder="e.g. Bengaluru Urban" />
+              <span class="field-error" id="err-district">Required</span>
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Date of Denial / Discharge <span class="req">*</span></label>
+              <input type="date" id="denial-date" />
+              <span class="field-error" id="err-date">Required</span>
+            </div>
+            <div class="form-group">
+              <label>Denial Reason <span class="req">*</span></label>
+              <select id="denial-reason">
+                <option value="">— Select reason —</option>
+                <option value="preauth">Pre-authorization not obtained / rejected</option>
+                <option value="docs">Document mismatch or incomplete documents</option>
+                <option value="package">Treatment not in PM-JAY package</option>
+                <option value="limit">Claim amount exceeds package rate</option>
+                <option value="empanel">Hospital empanelment issue</option>
+                <option value="eligibility">Patient eligibility / card issue</option>
+                <option value="duplicate">Duplicate claim flagged</option>
+                <option value="other">Other / Unknown</option>
+              </select>
+              <span class="field-error" id="err-reason">Required</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Brief description of what happened</label>
+            <textarea id="description" placeholder="What the family was told, what treatment was sought, any previous steps taken..."></textarea>
+          </div>
+
+          <div class="form-group">
+            <label>Documents already in hand</label>
+            <div class="checkbox-group">
+              <label class="checkbox-item"><input type="checkbox" value="pmjay-card" class="doc-have" /><span>PM-JAY card (original)</span></label>
+              <label class="checkbox-item"><input type="checkbox" value="aadhaar" class="doc-have" /><span>Aadhaar card</span></label>
+              <label class="checkbox-item"><input type="checkbox" value="discharge" class="doc-have" /><span>Discharge summary</span></label>
+              <label class="checkbox-item"><input type="checkbox" value="bills" class="doc-have" /><span>Hospital bills (itemized)</span></label>
+              <label class="checkbox-item"><input type="checkbox" value="denial-letter" class="doc-have" /><span>Denial / rejection letter</span></label>
+              <label class="checkbox-item"><input type="checkbox" value="prescription" class="doc-have" /><span>Doctor's prescription / referral</span></label>
+              <label class="checkbox-item"><input type="checkbox" value="ration" class="doc-have" /><span>Ration card / family ID</span></label>
+              <label class="checkbox-item"><input type="checkbox" value="lab" class="doc-have" /><span>Lab reports / diagnostic reports</span></label>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="btn btn-primary" onclick="goToStep2()">Generate Document Checklist →</button>
+      </div>
+    </div>
+
+    <!-- ══ SCREEN 2: DOCUMENT CHECKLIST ══ -->
+    <div id="screen-2" class="screen">
+      <div class="generated-intro">
+        <span class="icon">📋</span>
+        <div>
+          <strong>Auto-Generated Checklist</strong>
+          <p>Based on the denial reason, here is exactly what documents are needed. Items marked <span style="color:var(--red);font-weight:700">NEED</span> must be collected before resubmitting.</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="num">Step 02</span>
+          <div>
+            <h2>Document Checklist</h2>
+            <p id="checklist-subtitle">Required documents for this case</p>
+          </div>
+        </div>
+        <div class="card-body" style="padding: 0;">
+          <div class="checklist" id="checklist-items"></div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="btn btn-secondary" onclick="goToStep(1)">← Back</button>
+        <button class="btn btn-primary" onclick="goToStep(3)">Generate Follow-Up Timeline →</button>
+      </div>
+    </div>
+
+    <!-- ══ SCREEN 3: FOLLOW-UP TIMELINE ══ -->
+    <div id="screen-3" class="screen">
+      <div class="generated-intro">
+        <span class="icon">📅</span>
+        <div>
+          <strong>Auto-Generated Timeline</strong>
+          <p>A step-by-step action plan for this case. Share this with the family so everyone knows what happens next and when.</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="num">Step 03</span>
+          <div>
+            <h2>Follow-Up Timeline</h2>
+            <p id="timeline-subtitle">Action plan from today</p>
+          </div>
+        </div>
+        <div class="card-body" style="padding: 0;">
+          <div class="timeline" id="timeline-items"></div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="btn btn-secondary" onclick="goToStep(2)">← Back</button>
+        <button class="btn btn-primary" onclick="goToStep(4)">Generate Grievance Packet →</button>
+      </div>
+    </div>
+
+    <!-- ══ SCREEN 4: GRIEVANCE PACKET ══ -->
+    <div id="screen-4" class="screen">
+      <div class="generated-intro">
+        <span class="icon">📄</span>
+        <div>
+          <strong>Ready-to-Submit Grievance Letter</strong>
+          <p>Print this packet and attach the required documents. Submit to the District PM-JAY Grievance Cell or upload via the PM-JAY portal.</p>
+        </div>
+      </div>
+
+      <div id="grievance-preview">
+        <!-- populated by JS -->
+      </div>
+
+      <div class="actions">
+        <button class="btn btn-secondary" onclick="goToStep(3)">← Back</button>
+        <button class="btn btn-yellow" onclick="window.print()">Print / Save PDF</button>
+        <button class="btn btn-primary" onclick="goToStep(5)">Mark as Submitted →</button>
+      </div>
+    </div>
+
+    <!-- ══ SCREEN 5: CASE SUMMARY ══ -->
+    <div id="screen-5" class="screen">
+
+      <div class="summary-hero">
+        <span class="check">✓</span>
+        <h2>Case Logged & Packet Ready</h2>
+        <p>The grievance packet has been generated. The family and supervisor should each receive a copy.</p>
+      </div>
+
+      <div class="case-id-box">
+        <div>
+          <span class="cid-label">Case Reference ID</span>
+          <span class="cid-value" id="case-id">—</span>
+        </div>
+        <div style="text-align:right;">
+          <span class="cid-label">Date Logged</span>
+          <span class="cid-value" id="case-date" style="font-size:0.9rem;">—</span>
+        </div>
+      </div>
+
+      <div class="summary-grid" id="summary-grid"></div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="num">Next Steps</span>
+          <div><h2>What Happens Now</h2></div>
+        </div>
+        <div class="card-body">
+          <div class="checklist" id="next-steps-list"></div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="btn btn-secondary" onclick="window.print()">Print Summary</button>
+        <button class="btn btn-primary" onclick="startNewCase()">Start New Case →</button>
+      </div>
+    </div>
+
+  </main>
+
+  <script>
+    // ── STATE ──
+    const state = {
+      agentName: '', patientName: '', pmjayId: '', hospitalName: '',
+      district: '', denialDate: '', denialReason: '', description: '',
+      docsHave: [], caseId: ''
+    };
+
+    // ── DENIAL DATA ──
+    const denialLabels = {
+      preauth: 'Pre-authorization not obtained / rejected',
+      docs: 'Document mismatch or incomplete documents',
+      package: 'Treatment not in PM-JAY package',
+      limit: 'Claim amount exceeds package rate',
+      empanel: 'Hospital empanelment issue',
+      eligibility: 'Patient eligibility / card issue',
+      duplicate: 'Duplicate claim flagged',
+      other: 'Other / Unknown'
+    };
+
+    // ── DOCUMENT REQUIREMENTS ──
+    // Each: { id, name, detail, required: true/false/optional }
+    const baseDocuments = [
+      { id: 'pmjay-card', name: 'PM-JAY Card (original + photocopy)', detail: 'Must match name on hospital records exactly.', required: true },
+      { id: 'aadhaar', name: 'Aadhaar Card', detail: 'For identity verification. Photocopy accepted.', required: true },
+      { id: 'denial-letter', name: 'Denial / Rejection Letter', detail: 'The letter or discharge summary showing reason for denial.', required: true },
+    ];
+
+    const reasonDocuments = {
+      preauth: [
+        { id: 'prescription', name: "Doctor's Referral / Prescription", detail: 'Signed by treating doctor stating medical necessity.', required: true },
+        { id: 'admission', name: 'Hospital Admission Records', detail: 'Proof of when patient was admitted.', required: true },
+        { id: 'discharge', name: 'Discharge Summary', detail: 'Full discharge summary from hospital.', required: true },
+        { id: 'preauth-form', name: 'Pre-Authorization Request Form', detail: 'To be filled and submitted to SHA. Agent must obtain from hospital.', required: true },
+        { id: 'med-cert', name: 'Medical Necessity Certificate', detail: 'Signed by treating doctor. States why treatment could not wait for pre-auth.', required: true },
+      ],
+      docs: [
+        { id: 'discharge', name: 'Discharge Summary', detail: 'Full document — all pages required.', required: true },
+        { id: 'bills', name: 'Itemized Hospital Bill', detail: 'Must list each procedure, medicine, and service separately.', required: true },
+        { id: 'prescription', name: 'Doctor Prescription', detail: 'All prescriptions during the treatment period.', required: true },
+        { id: 'lab', name: 'Lab / Diagnostic Reports', detail: 'All test results referenced in treatment.', required: true },
+        { id: 'ration', name: 'Ration Card or Family ID', detail: 'For address and family verification if name mismatch.', required: false },
+      ],
+      package: [
+        { id: 'discharge', name: 'Discharge Summary', detail: 'With specific procedure/treatment codes noted.', required: true },
+        { id: 'med-cert', name: 'Medical Necessity Certificate', detail: 'Signed by doctor explaining why this treatment was the only option.', required: true },
+        { id: 'specialist', name: 'Specialist Referral Letter', detail: 'From primary doctor to specialist who performed treatment.', required: true },
+        { id: 'precedent', name: 'SHA Precedent / Exception Request', detail: 'Letter requesting exceptional coverage. Agent to draft — template in packet.', required: true },
+      ],
+      limit: [
+        { id: 'bills', name: 'Itemized Hospital Bill', detail: 'Must show each charge individually to justify amount exceeding package rate.', required: true },
+        { id: 'discharge', name: 'Discharge Summary', detail: 'Showing complexity of treatment.', required: true },
+        { id: 'pharmacy', name: 'Pharmacy / Implant Receipts', detail: 'Original receipts for any medicines or implants billed separately.', required: true },
+        { id: 'review-request', name: 'Rate Review Request Letter', detail: 'Formal letter requesting package rate review. Template in packet.', required: true },
+      ],
+      empanel: [
+        { id: 'discharge', name: 'Discharge Summary', detail: 'Proof treatment occurred at the hospital.', required: true },
+        { id: 'emergency-cert', name: 'Emergency Certificate', detail: 'Signed by treating doctor stating it was an emergency. Critical for non-empanelled hospital.', required: true },
+        { id: 'prescription', name: "Doctor's Referral", detail: 'If patient was referred to this hospital specifically.', required: false },
+        { id: 'hospital-reg', name: 'Hospital Registration Certificate', detail: 'Proof that hospital is a legitimate registered facility.', required: true },
+      ],
+      eligibility: [
+        { id: 'ration', name: 'Ration Card / Family ID', detail: 'Primary proof of household PM-JAY eligibility.', required: true },
+        { id: 'income', name: 'Income Certificate', detail: 'From tehsildar/revenue office confirming BPL or eligible income bracket.', required: true },
+        { id: 'enrollment', name: 'State Enrollment Record', detail: 'Proof of registration in Ayushman Bharat scheme. Obtain from SHA office.', required: true },
+        { id: 'discharge', name: 'Discharge Summary', detail: 'Proof of treatment to link to eligibility claim.', required: true },
+      ],
+      duplicate: [
+        { id: 'claim-ref', name: 'Original Claim Reference Number', detail: 'Prior claim ID from hospital. Prove original was not paid.', required: true },
+        { id: 'bills', name: 'Itemized Hospital Bill', detail: 'Original bill showing single treatment episode.', required: true },
+        { id: 'payment-hist', name: 'Payment History / Bank Statement', detail: 'Proof that family never received payment for this claim.', required: true },
+      ],
+      other: [
+        { id: 'discharge', name: 'Discharge Summary', detail: 'Full document — all pages.', required: true },
+        { id: 'bills', name: 'Itemized Hospital Bill', detail: 'All charges listed separately.', required: true },
+        { id: 'prescription', name: "Doctor's Prescription / Referral", detail: 'Any doctor letters related to the treatment.', required: false },
+        { id: 'correspondence', name: 'Any Prior Correspondence', detail: 'Letters, WhatsApp screenshots, or notes from any previous attempts to resolve.', required: false },
+      ],
+    };
+
+    // ── TIMELINE RULES ──
+    const timelineTemplates = {
+      preauth: [
+        { offset: 0, action: 'File case in VerityAid system', detail: 'Log denial details, reason, and documents collected today.', who: 'Agent' },
+        { offset: 2, action: 'Collect missing documents', detail: 'Obtain Medical Necessity Certificate from treating doctor and Pre-Auth form from hospital admin.', who: 'Agent + Family' },
+        { offset: 5, action: 'Submit retrospective pre-authorization request', detail: 'Submit to hospital\'s PM-JAY desk with all documents. Get acknowledgement receipt.', who: 'Agent' },
+        { offset: 10, action: 'Follow up with hospital PM-JAY desk', detail: 'Confirm the pre-auth request was forwarded to SHA. Note the reference number.', who: 'Agent' },
+        { offset: 18, action: 'Escalate to District SHA if no response', detail: 'If no resolution, submit formal grievance to District SHA Grievance Cell using the packet generated in Step 4.', who: 'Agent' },
+        { offset: 30, action: 'Check grievance status', detail: 'Call SHA helpline (14555) with case reference number. Document outcome.', who: 'Agent' },
+      ],
+      docs: [
+        { offset: 0, action: 'File case and identify missing documents', detail: 'Use checklist from Step 2 to confirm exactly what is missing vs what family has.', who: 'Agent' },
+        { offset: 3, action: 'Collect all missing documents from hospital', detail: 'Request itemized bill, discharge summary, and lab reports from hospital records department.', who: 'Agent + Family' },
+        { offset: 6, action: 'Resubmit corrected claim via hospital', detail: 'Give complete document set to hospital billing desk for resubmission. Get receipt.', who: 'Agent' },
+        { offset: 14, action: 'Follow up on resubmission status', detail: 'Check with hospital PM-JAY coordinator if claim was accepted this time.', who: 'Agent' },
+        { offset: 21, action: 'Escalate if still denied', detail: 'File formal grievance with SHA if resubmission still rejected.', who: 'Agent' },
+      ],
+      package: [
+        { offset: 0, action: 'File case and confirm procedure code', detail: 'Identify exact treatment code and check against PM-JAY package list (available on NHA website).', who: 'Agent' },
+        { offset: 3, action: 'Obtain Medical Necessity Certificate', detail: 'Doctor must explain in writing why this specific treatment was the only option available.', who: 'Agent + Doctor' },
+        { offset: 7, action: 'Draft exception request letter', detail: 'Use the template in the grievance packet. Attach medical necessity certificate.', who: 'Agent' },
+        { offset: 10, action: 'Submit to State Health Authority', detail: 'Submit exception request to SHA\'s medical committee for review.', who: 'Agent' },
+        { offset: 25, action: 'Follow up on exception status', detail: 'Contact SHA. If rejected, escalate to NHA Grievance Portal (pmjay.gov.in).', who: 'Agent' },
+      ],
+      limit: [
+        { offset: 0, action: 'File case and document actual costs', detail: 'Verify itemized bill against PM-JAY package rate. Calculate exact shortfall.', who: 'Agent' },
+        { offset: 2, action: 'Collect all receipts and bills', detail: 'Obtain original pharmacy receipts, implant invoices, and itemized hospital bill.', who: 'Agent + Family' },
+        { offset: 5, action: 'Submit rate review request', detail: 'File formal request with SHA explaining complexity of case and documented costs.', who: 'Agent' },
+        { offset: 15, action: 'Follow up with SHA medical committee', detail: 'Rate review decisions typically take 10–15 days. Call SHA helpdesk for status.', who: 'Agent' },
+        { offset: 25, action: 'Escalate to NHA if denied', detail: 'If SHA denies review, escalate via NHA Centralized Grievance Redressal System.', who: 'Agent' },
+      ],
+      empanel: [
+        { offset: 0, action: 'File case and confirm hospital status', detail: 'Check if hospital was empanelled at time of treatment on NHA portal. Screenshot and save.', who: 'Agent' },
+        { offset: 2, action: 'Obtain Emergency Certificate from doctor', detail: 'Critical document. Doctor must state in writing that the situation was life-threatening and there was no time to find an empanelled hospital.', who: 'Agent + Doctor' },
+        { offset: 5, action: 'Submit emergency exception request', detail: 'Submit to SHA with emergency certificate, hospital registration, and discharge summary.', who: 'Agent' },
+        { offset: 14, action: 'Follow up on exception status', detail: 'Emergency exceptions are reviewed faster — follow up within 2 weeks.', who: 'Agent' },
+        { offset: 21, action: 'Escalate if denied', detail: 'File formal grievance with State Health Authority citing public health emergency provisions.', who: 'Agent' },
+      ],
+      eligibility: [
+        { offset: 0, action: 'File case and verify eligibility', detail: 'Check beneficiary status on PM-JAY portal using card number and Aadhaar. Screenshot result.', who: 'Agent' },
+        { offset: 3, action: 'Collect eligibility documents', detail: 'Ration card, income certificate, and state enrollment proof. Visit tehsildar office if income certificate is missing.', who: 'Agent + Family' },
+        { offset: 7, action: 'Visit district SHA office', detail: 'Submit documents in person to SHA enrollment desk. Request re-verification of beneficiary status.', who: 'Agent + Family' },
+        { offset: 14, action: 'Follow up on re-verification', detail: 'SHA re-verification typically takes 7–10 days. Call district SHA office for update.', who: 'Agent' },
+        { offset: 21, action: 'Resubmit claim after eligibility confirmed', detail: 'Once eligibility is confirmed, resubmit the original claim via hospital PM-JAY desk.', who: 'Agent' },
+      ],
+      duplicate: [
+        { offset: 0, action: 'File case and obtain original claim ID', detail: 'Get the prior claim reference number from the hospital billing department.', who: 'Agent' },
+        { offset: 2, action: 'Get written confirmation of non-payment', detail: 'Obtain a statement from family\'s bank confirming no PM-JAY payment was received.', who: 'Agent + Family' },
+        { offset: 5, action: 'Submit duplicate dispute to SHA', detail: 'File formal dispute with original claim ID, bank statement, and itemized bill as proof.', who: 'Agent' },
+        { offset: 15, action: 'Follow up on dispute resolution', detail: 'Duplicate claim disputes typically resolved in 10–15 days. Contact SHA grievance cell.', who: 'Agent' },
+      ],
+      other: [
+        { offset: 0, action: 'File case and document everything', detail: 'Write a full description of what happened — what the family was told, by whom, and when.', who: 'Agent' },
+        { offset: 3, action: 'Collect all available documents', detail: 'Gather whatever documents the family has. Complete the checklist from Step 2.', who: 'Agent + Family' },
+        { offset: 7, action: 'Visit hospital PM-JAY desk', detail: 'Request written explanation of exact denial reason and what is needed to resolve it.', who: 'Agent' },
+        { offset: 12, action: 'Submit formal grievance to SHA', detail: 'Use the grievance packet from Step 4. Attach all available documents.', who: 'Agent' },
+        { offset: 25, action: 'Follow up on grievance status', detail: 'Contact SHA helpline (14555) with case reference number.', who: 'Agent' },
+      ],
+    };
+
+    // ── HELPERS ──
+    function formatDate(d) {
+      const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      return { day: String(d.getDate()).padStart(2,'0'), month: months[d.getMonth()], full: d.toLocaleDateString('en-IN', { day:'numeric', month:'long', year:'numeric' }) };
+    }
+
+    function addDays(date, days) {
+      const d = new Date(date);
+      d.setDate(d.getDate() + days);
+      return d;
+    }
+
+    function generateCaseId() {
+      const now = new Date();
+      const rand = Math.floor(Math.random() * 9000) + 1000;
+      return `VA-KA-${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}-${rand}`;
+    }
+
+    function getDocsHave() {
+      return [...document.querySelectorAll('.doc-have:checked')].map(cb => cb.value);
+    }
+
+    // ── VALIDATION ──
+    function validate() {
+      let ok = true;
+      const fields = [
+        { id: 'agent-name', err: 'err-agent' },
+        { id: 'patient-name', err: 'err-patient' },
+        { id: 'hospital-name', err: 'err-hospital' },
+        { id: 'district', err: 'err-district' },
+        { id: 'denial-date', err: 'err-date' },
+        { id: 'denial-reason', err: 'err-reason' },
+      ];
+      fields.forEach(f => {
+        const el = document.getElementById(f.id);
+        const err = document.getElementById(f.err);
+        if (!el.value.trim()) {
+          el.classList.add('invalid');
+          err.style.display = 'block';
+          ok = false;
+        } else {
+          el.classList.remove('invalid');
+          err.style.display = 'none';
+        }
+      });
+      return ok;
+    }
+
+    // ── STEP NAVIGATION ──
+    function navigate(n) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById(`screen-${n}`).classList.add('active');
+      document.querySelectorAll('.progress-step').forEach(s => {
+        const sn = parseInt(s.dataset.step);
+        s.classList.remove('active', 'done');
+        if (sn === n) s.classList.add('active');
+        else if (sn < n) s.classList.add('done');
+      });
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function goToStep2() {
+      if (!validate()) return;
+      // Save state
+      state.agentName = document.getElementById('agent-name').value.trim();
+      state.patientName = document.getElementById('patient-name').value.trim();
+      state.pmjayId = document.getElementById('pmjay-id').value.trim() || 'Not provided';
+      state.hospitalName = document.getElementById('hospital-name').value.trim();
+      state.district = document.getElementById('district').value.trim();
+      state.denialDate = document.getElementById('denial-date').value;
+      state.denialReason = document.getElementById('denial-reason').value;
+      state.description = document.getElementById('description').value.trim();
+      state.docsHave = getDocsHave();
+      state.caseId = generateCaseId();
+
+      buildChecklist();
+      goToStep(2);
+    }
+
+    // ── BUILD CHECKLIST ──
+    function buildChecklist() {
+      const reason = state.denialReason;
+      const docsHave = state.docsHave;
+      const allDocs = [...baseDocuments, ...(reasonDocuments[reason] || [])];
+
+      document.getElementById('checklist-subtitle').textContent =
+        `${allDocs.length} documents identified for: ${denialLabels[reason]}`;
+
+      const container = document.getElementById('checklist-items');
+      container.innerHTML = '';
+
+      allDocs.forEach((doc, i) => {
+        const have = docsHave.includes(doc.id);
+        const optional = doc.required === false;
+        const badgeClass = have ? 'badge-have' : (optional ? 'badge-optional' : 'badge-need');
+        const badgeText = have ? 'Have ✓' : (optional ? 'Optional' : 'Need');
+
+        const el = document.createElement('div');
+        el.className = 'checklist-item';
+        el.innerHTML = `
+          <div class="ci-num">${String(i+1).padStart(2,'0')}</div>
+          <div class="ci-text">
+            <strong>${doc.name}</strong>
+            <span>${doc.detail}</span>
+          </div>
+          <div class="ci-status"><span class="badge ${badgeClass}">${badgeText}</span></div>
+        `;
+        container.appendChild(el);
+      });
+    }
+
+    // ── BUILD TIMELINE ──
+    function buildTimeline() {
+      const reason = state.denialReason;
+      const steps = timelineTemplates[reason] || timelineTemplates.other;
+      const baseDate = state.denialDate ? new Date(state.denialDate + 'T00:00:00') : new Date();
+
+      document.getElementById('timeline-subtitle').textContent =
+        `${steps.length} actions — starting from ${formatDate(new Date()).full}`;
+
+      const container = document.getElementById('timeline-items');
+      container.innerHTML = '';
+
+      steps.forEach(step => {
+        const d = addDays(new Date(), step.offset);
+        const fd = formatDate(d);
+        const el = document.createElement('div');
+        el.className = 'timeline-item';
+        el.innerHTML = `
+          <div class="timeline-date">
+            <span class="day">${fd.day}</span>
+            <span class="month">${fd.month}</span>
+          </div>
+          <div class="timeline-content">
+            <h4>${step.action}</h4>
+            <p>${step.detail}</p>
+            <span class="who">${step.who}</span>
+          </div>
+        `;
+        container.appendChild(el);
+      });
+    }
+
+    // ── BUILD GRIEVANCE PACKET ──
+    function buildGrievancePacket() {
+      const today = formatDate(new Date());
+      const reason = state.denialReason;
+      const allDocs = [...baseDocuments, ...(reasonDocuments[reason] || [])];
+      const requiredDocs = allDocs.filter(d => d.required !== false);
+
+      const denialDateFmt = state.denialDate
+        ? formatDate(new Date(state.denialDate + 'T00:00:00')).full
+        : 'Not recorded';
+
+      const descriptionText = state.description ||
+        'Family sought treatment at the above hospital under PM-JAY. Claim was denied at discharge without adequate explanation or a clear resolution pathway.';
+
+      document.getElementById('grievance-preview').innerHTML = `
+        <div class="gp-header">
+          <div>
+            <div class="gp-logo">VERITYAID</div>
+            <div style="font-size:0.75rem;color:#999;margin-top:4px;font-family:'Space Mono',monospace;">Grievance Support Document</div>
+          </div>
+          <div class="gp-meta">
+            Case ID: <strong>${state.caseId}</strong><br/>
+            Date: ${today.full}<br/>
+            Filed by: ${state.agentName}
+          </div>
+        </div>
+
+        <p><strong>To:</strong><br/>
+        The Grievance Officer,<br/>
+        District PM-JAY / Ayushman Bharat Cell,<br/>
+        ${state.district} District, Karnataka</p>
+
+        <p><strong>Sub:</strong> Formal Grievance — PM-JAY Claim Denial for Beneficiary: ${state.patientName} | Case ID: ${state.caseId}</p>
+
+        <p>Respected Sir / Madam,</p>
+
+        <p>I am writing on behalf of <strong>${state.patientName}</strong> (PM-JAY Beneficiary ID: ${state.pmjayId}) to formally raise a grievance regarding the denial of a PM-JAY claim. The beneficiary sought treatment at <strong>${state.hospitalName}</strong>, ${state.district}, and was denied at the time of discharge on <strong>${denialDateFmt}</strong>.</p>
+
+        <h3>Denial Details</h3>
+        <p><strong>Stated Reason for Denial:</strong> ${denialLabels[reason]}</p>
+        <p><strong>Description:</strong> ${descriptionText}</p>
+
+        <h3>Grounds for Review</h3>
+        <p>The beneficiary is registered under the Ayushman Bharat PM-JAY scheme and was seeking treatment for a legitimate medical condition. The denial appears to be procedural in nature rather than a substantive ineligibility. We respectfully request that the claim be reviewed and approved, or that specific guidance be provided for resubmission.</p>
+
+        <h3>Documents Enclosed</h3>
+        <ul class="doc-list">
+          ${requiredDocs.map(d => `<li>${d.name}</li>`).join('')}
+        </ul>
+
+        <h3>Relief Sought</h3>
+        <p>We respectfully request the following:</p>
+        <p>1. Review and approval of the PM-JAY claim for the treatment received at ${state.hospitalName}.<br/>
+        2. Written acknowledgement of this grievance with a reference number within 7 working days.<br/>
+        3. If additional documents are required, a specific written list of what is needed so we may provide them promptly.</p>
+
+        <p>We trust in the grievance redressal mechanism and look forward to a timely resolution. Please contact the undersigned agent for any clarification.</p>
+
+        <div class="gp-footer">
+          <div>
+            <p style="font-size:0.85rem;margin-bottom:0;"><strong>Filed by (Agent / CHW):</strong></p>
+            <div class="sig-line">${state.agentName}</div>
+            <p style="font-size:0.78rem;color:#999;margin-top:8px;">VerityAid Community Agent<br/>${state.district}, Karnataka</p>
+          </div>
+          <div>
+            <p style="font-size:0.85rem;margin-bottom:0;"><strong>Beneficiary Confirmation:</strong></p>
+            <div class="sig-line">Signature / Thumb Impression</div>
+            <p style="font-size:0.78rem;color:#999;margin-top:8px;">${state.patientName}<br/>PM-JAY ID: ${state.pmjayId}</p>
+          </div>
+        </div>
+
+        <p style="margin-top:32px;font-size:0.75rem;color:#aaa;border-top:1px solid #eee;padding-top:16px;">
+          This document was generated by VerityAid on ${today.full}. Case Reference: ${state.caseId}.
+          VerityAid is a community advocacy service. This grievance letter does not constitute legal advice.
+          Helpline: PM-JAY Toll Free 14555.
+        </p>
+      `;
+    }
+
+    // ── BUILD SUMMARY ──
+    function buildSummary() {
+      document.getElementById('case-id').textContent = state.caseId;
+      document.getElementById('case-date').textContent = formatDate(new Date()).full;
+
+      const cells = [
+        { label: 'Patient Name', value: state.patientName },
+        { label: 'PM-JAY ID', value: state.pmjayId },
+        { label: 'Hospital', value: state.hospitalName },
+        { label: 'District', value: state.district },
+        { label: 'Denial Reason', value: denialLabels[state.denialReason] },
+        { label: 'Agent / CHW', value: state.agentName },
+      ];
+
+      const grid = document.getElementById('summary-grid');
+      grid.innerHTML = cells.map(c => `
+        <div class="summary-cell">
+          <div class="sc-label">${c.label}</div>
+          <div class="sc-value">${c.value}</div>
+        </div>
+      `).join('');
+
+      const nextSteps = [
+        { num: '01', text: 'Give the family a printed copy of the grievance packet', detail: 'They should keep it safe and show it at the hospital or SHA office if asked.' },
+        { num: '02', text: 'Share the follow-up timeline with the family', detail: 'Review key dates with them. Set a reminder for yourself to follow up.' },
+        { num: '03', text: 'Submit the grievance packet to the District SHA office', detail: 'In person or via the PM-JAY portal. Keep the acknowledgement receipt.' },
+        { num: '04', text: 'Log this case in your supervisor\'s tracker', detail: `Case ID: ${state.caseId} — reference this when reporting.` },
+        { num: '05', text: 'Call PM-JAY helpline in 7 days if no response', detail: 'Toll-free: 14555. Have the case ID and grievance receipt ready.' },
+      ];
+
+      const list = document.getElementById('next-steps-list');
+      list.innerHTML = nextSteps.map(s => `
+        <div class="checklist-item">
+          <div class="ci-num">${s.num}</div>
+          <div class="ci-text" style="grid-column: 2 / -1;">
+            <strong>${s.text}</strong>
+            <span>${s.detail}</span>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // ── GOTO STEP (single function) ──
+    function goToStep(n) {
+      if (n === 3) buildTimeline();
+      if (n === 4) buildGrievancePacket();
+      if (n === 5) buildSummary();
+      navigate(n);
+    }
+
+    function startNewCase() {
+      document.getElementById('agent-name').value = state.agentName; // keep agent name
+      document.getElementById('patient-name').value = '';
+      document.getElementById('pmjay-id').value = '';
+      document.getElementById('hospital-name').value = '';
+      document.getElementById('district').value = '';
+      document.getElementById('denial-date').value = '';
+      document.getElementById('denial-reason').value = '';
+      document.getElementById('description').value = '';
+      document.querySelectorAll('.doc-have').forEach(cb => cb.checked = false);
+      goToStep(1);
+    }
+
+    // Set default date to today
+    document.getElementById('denial-date').valueAsDate = new Date();
+  </script>
+
+</body>
+</html>

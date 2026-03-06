@@ -1,0 +1,10 @@
+node_modules/
+.env
+token.json
+credentials.json
+.tmp/
+screenshots/
+brand assets/
+CLAUDE.md
+screenshot.js
+package-lock.json
